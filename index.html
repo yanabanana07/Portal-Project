@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Portal - Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body data-theme="blue">
+
+    <div id="login-screen">
+        <div id="login-box">
+            <img src="icct logo.png" alt="School Logo" class="login-logo">
+            <h2>Student Portal</h2>
+            <p class="login-subtitle">Sign in to continue</p>
+            <form id="login-form">
+                <div class="login-form-group">
+                    <label for="student-id"><i class="fa-solid fa-user"></i> Student ID</label>
+                    <input type="text" id="student-id" placeholder="e.g., 2025-00001" required>
+                </div>
+                <div class="login-form-group">
+                    <label for="password"><i class="fa-solid fa-lock"></i> Password</label>
+                    <input type="password" id="password" placeholder="Enter password" required>
+                </div>
+                <p id="login-error" class="hidden"></p> <div class="login-options">
+                    <label class="remember-me">
+                        <input type="checkbox" id="remember-me">
+                        <span>Remember Me</span>
+                    </label>
+                    <a href="#" class="forgot-password">Forgot Password?</a>
+                </div>
+                <button type="submit" id="login-btn" class="btn btn-primary">
+                    <span>Login</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="splash-screen" class="hidden">
+        <div class="spinner"></div>
+        <p>Loading Portal...</p>
+    </div>
+
+    <div id="tutorial-overlay" class="overlay-container hidden">
+        <div class="overlay-content">
+            <h2>Welcome to your new Student Portal!</h2>
+            <p>This is a quick tour. Use the sidebar on the left to navigate between pages. You can change your theme colors or switch to dark mode using the controls at the bottom of the sidebar.</p>
+            <button id="close-tutorial" class="btn btn-primary">Got it!</button>
+        </div>
+    </div>
+
+    <div id="confirmation-modal" class="modal-container hidden">
+        <div class="modal-content">
+            <h3 id="modal-title">Confirm Action</h3>
+            <p id="modal-message">Are you sure?</p>
+            <div class="modal-actions">
+                <button id="modal-confirm-btn" class="btn btn-primary">Confirm</button>
+                <button id="modal-cancel-btn" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <div id="easter-egg" class="hidden">🎉<br>Konami Code!</div>
+
+    <div id="pomodoro-timer" class="widget-container">
+        <div class="widget-header">
+            <h4><i class="fa-solid fa-clock"></i> Study Timer</h4>
+            <button id="pomodoro-close" class="widget-close">&times;</button>
+        </div>
+        <div id="pomodoro-display">25:00</div>
+        <div class="pomodoro-controls">
+            <button id="pomodoro-start" class="btn btn-small"><i class="fa-solid fa-play"></i></button>
+            <button id="pomodoro-pause" class="btn btn-small hidden"><i class="fa-solid fa-pause"></i></button>
+            <button id="pomodoro-reset" class="btn btn-small"><i class="fa-solid fa-refresh"></i></button>
+        </div>
+    </div>
+
+    <div class="portal-container hidden">
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <h3><i class="fa-solid fa-graduation-cap"></i> Portal</h3>
+            </div>
+            <div class="sidebar-profile">
+                <img src="https://i.pravatar.cc/100" id="sidebar-avatar" alt="Profile Photo">
+                <h4 id="sidebar-name">Juan Dela Cruz</h4>
+                <p id="sidebar-id">2025-00001</p>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="#" class="nav-link active" data-page="dashboard"><i class="fa-solid fa-table-columns"></i> <span>Dashboard</span></a></li>
+                <li><a href="#" class="nav-link" data-page="academics"><i class="fa-solid fa-book"></i> <span>Academics</span></a></li>
+                <li><a href="#" class="nav-link" data-page="finance"><i class="fa-solid fa-peso-sign"></i> <span>Finance</span></a></li>
+                <li><a href="#" class="nav-link" data-page="clearance"><i class="fa-solid fa-check-double"></i> <span>Clearance</span></a></li>
+                <li><a href="#" class="nav-link" data-page="registration"><i class="fa-solid fa-id-card"></i> <span>Registration</span></a></li>
+                <li><a href="#" class="nav-link" data-page="documents"><i class="fa-solid fa-file-lines"></i> <span>Documents</span></a></li>
+                <li><a href="#" class="nav-link" data-page="announcements"><i class="fa-solid fa-bullhorn"></i> <span>Announcements</span></a></li>
+                <li><a href="#" class="nav-link" data-page="calendar"><i class="fa-solid fa-calendar-days"></i> <span>Calendar</span></a></li>
+                <li><a href="#" class="nav-link" data-page="library"><i class="fa-solid fa-book-open"></i> <span>Library</span></a></li>
+                <li><a href="#" class="nav-link" data-page="profile"><i class="fa-solid fa-user"></i> <span>Profile</span></a></li>
+                <li><a href="#" class="nav-link" data-page="about"><i class="fa-solid fa-circle-info"></i> <span>About</span></a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <div class="theme-selector">
+                    <button id="dark-mode-toggle" class="icon-btn" title="Dark Mode"><i class="fa-solid fa-moon"></i></button>
+                    <select id="theme-selector" title="Select Theme">
+                        <option value="blue">Blue</option>
+                        <option value="maroon">Maroon</option>
+                        <option value="green">Green</option>
+                        <option value="purple">Purple</option>
+                    </select>
+                </div>
+                <button id="logout-btn" class="btn btn-secondary"><i class="fa-solid fa-right-from-bracket"></i> <span>Logout</span></button>
+            </div>
+        </nav>
+
+        <div class="main-wrapper">
+            <header>
+                <div class="header-left">
+                    <button id="sidebar-toggle" class="icon-btn"><i class="fa-solid fa-bars"></i></button>
+                    <button id="back-btn" class="icon-btn" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
+                    <button id="focus-mode-toggle" class="icon-btn" title="Focus Mode"><i class="fa-solid fa-arrows-left-right-to-line"></i></button>
+                    <h2 id="page-title">Dashboard</h2>
+                </div>
+                <div class="header-right">
+                    <div class="search-bar">
+                        <i class="fa-solid fa-search"></i>
+                        <input type="text" id="predictive-search" placeholder="Search subjects, announcements...">
+                        <div id="search-results" class="hidden"></div>
+                    </div>
+                    <div id="live-datetime">
+                        <span id="live-date"></span>
+                        <span id="live-time"></span>
+                    </div>
+                    <button id="pomodoro-open" class="icon-btn" title="Study Timer"><i class="fa-solid fa-stopwatch"></i></button>
+                    <img src="https://i.pravatar.cc/100" id="header-avatar" alt="Profile Photo" class="nav-link" data-page="profile">
+                </div>
+            </header>
+
+            <main id="main-content">
+
+                <section id="page-dashboard" class="page-content active">
+                    <div id="smart-reminders"></div>
+
+                    <h3 id="welcome-message">Welcome, Juan!</h3>
+                    <p>Here's a summary of your current academic status.</p>
+
+                    <div class="grid-container stats-grid">
+                        <div class="card stat-card">
+                            <i class="fa-solid fa-book-open-reader"></i>
+                            <div>
+                                <span id="stat-subjects">0</span>
+                                <p>Enrolled Subjects</p>
+                            </div>
+                        </div>
+                        <div class="card stat-card" id="stat-clearance-card">
+                            <i class="fa-solid fa-check"></i>
+                            <div>
+                                <span id="stat-clearance">0/5</span>
+                                <p>Clearance</p>
+                            </div>
+                        </div>
+                        <div class="card stat-card" id="stat-permit-card">
+                            <i class="fa-solid fa-ticket"></i>
+                            <div>
+                                <span id="stat-permit">Pending</span>
+                                <p>Exam Permit</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card announcement-ticker">
+                        <i class="fa-solid fa-bullhorn"></i>
+                        <div class="ticker-wrap">
+                            <div class="ticker-content" id="ticker-content">
+                                </div>
+                        </div>
+                    </div>
+
+                    <div class="grid-container dashboard-grid">
+                        <div class="card">
+                            <h4><i class="fa-solid fa-link"></i> Quick Access</h4>
+                            <ul class="quick-links">
+                                <li><a href="#" class="nav-link" data-page="academics"><i class="fa-solid fa-chevron-right"></i> View Grades</a></li>
+                                <li><a href="#" class="nav-link" data-page="finance"><i class="fa-solid fa-chevron-right"></i> Pay Tuition</a></li>
+                                <li><a href="#" class="nav-link" data-page="registration"><i class="fa-solid fa-chevron-right"></i> View Reg. Form</a></li>
+                                <li><a href="#" class="nav-link" data-page="documents"><i class="fa-solid fa-chevron-right"></i> Request Document</a></li>
+                            </ul>
+                        </div>
+
+                        <div class="card card-link">
+                            <a href="#" class="nav-link" data-page="academics">
+                                <h4><i class="fa-solid fa-star"></i> Academic Summary</h4>
+                                <div class="academic-summary-dash">
+                                    <div>
+                                        <span id="dash-stat-gpa">0.00</span>
+                                        <p>Current GPA</p>
+                                    </div>
+                                    <div>
+                                        <span id="dash-stat-standing">---</span>
+                                        <p>Academic Standing</p>
+                                    </div>
+                                </div>
+                                <small class="click-hint">Click to view details</small>
+                            </a>
+                        </div>
+
+                        <div class="card">
+                            <h4><i class="fa-solid fa-peso-sign"></i> Account Balance</h4>
+                            <div class="balance-summary-dash">
+                                <h2 id="dash-balance-amount">₱0.00</h2>
+                                <p>Outstanding Balance</p>
+                                <small><em>Please disregard if the payment has been made.</em></small>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h4><i class="fa-solid fa-chart-pie"></i> Attendance Summary</h4>
+                            <div class="chart-container" style="height: 250px;">
+                                <canvas id="dashboard-attendance-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="page-academics" class="page-content">
+                    <div class="tabs">
+                        <button class="tab-link active" data-tab="tab-grades">Subjects & Grades</button>
+                        <button class="tab-link" data-tab="tab-schedule">Exam Schedule</button>
+                        <button class="tab-link" data-tab="tab-permit">Exam Permit</button>
+                        <button class="tab-link" data-tab="tab-attendance">Attendance</button>
+                        <button class="tab-link" data-tab="tab-eclassroom">E-Classroom</button>
+                        <button class="tab-link" data-tab="tab-evaluation">Evaluation</button>
+                    </div>
+
+                    <div id="tab-grades" class="tab-content active">
+                        <div class="grid-container two-col">
+                            <div class="card">
+                                <h4><i class="fa-solid fa-list-check"></i> Enrolled Subjects (Current Sem)</h4>
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Code</th>
+                                            <th>Subject Name</th>
+                                            <th>Instructor</th>
+                                            <th>Units</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="subjects-list-body">
+                                        </tbody>
+                                </table>
+                            </div>
+                            <div class="card">
+                                <h4><i class="fa-solid fa-calculator"></i> GPA Calculator</h4>
+                                <div id="gpa-summary">
+                                    <p>Total Units: <span id="gpa-total-units">0</span></p>
+                                    <h3>Overall GPA: <span id="gpa-result">0.00</span></h3>
+                                    <p>Academic Standing: <span id="gpa-standing">---</span></p>
+                                </div>
+                                <button id="calculate-gpa-btn" class="btn btn-primary"><i class="fa-solid fa-calculator"></i> Calculate</button>
+                                <button id="print-grades-btn" class="btn btn-secondary"><i class="fa-solid fa-print"></i> Print Grades</button>
+                            </div>
+                        </div>
+
+                        <div class="card" id="grades-print-area">
+                            <h4><i class="fa-solid fa-marker"></i> Grade Table</h4>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Subject</th>
+                                        <th>Midterm</th>
+                                        <th>Final</th>
+                                        <th>Overall</th>
+                                        <th>Equivalent</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="grades-table-body">
+                                    </tbody>
+                            </table>
+                        </div>
+
+                        <div class="card">
+                            <h4><i class="fa-solid fa-chart-pie"></i> Grade Distribution</h4>
+                            <div class="chart-container" style="height: 300px;">
+                                <canvas id="academics-grade-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tab-schedule" class="tab-content">
+                        <div class="card" id="schedule-print-area">
+                            <h4><i class="fa-solid fa-calendar-days"></i> Final Exam Schedule</h4>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Subject</th>
+                                        <th>Date</th>
+                                        <th>Time</th>
+                                        <th>Room</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="exam-schedule-body">
+                                    </tbody>
+                            </table>
+                        </div>
+                        <button id="print-schedule-btn" class="btn btn-primary"><i class="fa-solid fa-print"></i> Print Schedule</button>
+                    </div>
+
+                    <div id="tab-permit" class="tab-content">
+                        <div id="exam-permit-container">
+                            </div>
+                        <div id="exam-permit-controls" class="hidden">
+                            <button id="print-permit-btn" class="btn btn-primary"><i class="fa-solid fa-print"></i> Print/Download Permit</button>
+                        </div>
+                    </div>
+
+                    <div id="tab-attendance" class="tab-content">
+                        <div class="card">
+                            <h4><i class="fa-solid fa-user-check"></i> Attendance Tracker</h4>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Subject</th>
+                                        <th>Percentage</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="attendance-table-body">
+                                    </tbody>
+                            </table>
+                             </div>
+                    </div>
+
+                    <div id="tab-eclassroom" class="tab-content">
+                         <div class="card">
+                            <h4><i class="fa-solid fa-chalkboard-user"></i> My Courses (E-Classroom)</h4>
+                             <p>Access your virtual classroom resources here.</p>
+                            <div id="eclassroom-courses" class="grid-container two-col">
+                                </div>
+                         </div>
+                    </div>
+
+                    <div id="tab-evaluation" class="tab-content">
+                        <div class="card">
+                            <h4><i class="fa-solid fa-comments"></i> Professor Evaluation</h4>
+                            <form id="evaluation-form" class="form-layout">
+                                <div class="form-group">
+                                    <label for="eval-professor">Select Professor</label>
+                                    <select id="eval-professor" required>
+                                        </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Rating (1-5 Stars)</label>
+                                    <div class="star-rating">
+                                        <i class="fa-regular fa-star" data-value="1"></i>
+                                        <i class="fa-regular fa-star" data-value="2"></i>
+                                        <i class="fa-regular fa-star" data-value="3"></i>
+                                        <i class="fa-regular fa-star" data-value="4"></i>
+                                        <i class="fa-regular fa-star" data-value="5"></i>
+                                    </div>
+                                    <input type="hidden" id="eval-rating" value="0" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="eval-comments">Comments</label>
+                                    <textarea id="eval-comments" rows="4" placeholder="Your anonymous feedback is valuable..."></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Submit Feedback</button>
+                            </form>
+                        </div>
+                    </div>
+
+                </section>
+
+                <section id="page-finance" class="page-content">
+                    <div class="tabs">
+                        <button class="tab-link active" data-tab="tab-balance">Account Balance</button>
+                        <button class="tab-link" data-tab="tab-history">Payment History</button>
+                        <button class="tab-link" data-tab="tab-assessment">Tentative Assessment</button>
+                    </div>
+
+                    <div id="tab-balance" class="tab-content active">
+                        <div class="grid-container two-col">
+                            <div class="card">
+                                <h4><i class="fa-solid fa-file-invoice-dollar"></i> Tuition & Fees Breakdown</h4>
+                                <ul class="breakdown-list" id="fees-breakdown-list">
+                                    </ul>
+                                <div class="payment-progress">
+                                    <p>Payment Progress</p>
+                                    <progress id="payment-progress-bar" value="0" max="100"></progress>
+                                    <p>Balance: <strong id="payment-balance">₱0.00</strong></p>
+                                </div>
+                                <div id="finance-permit-message" class="message-box info hidden"></div>
+                            </div>
+                            <div class="card">
+                                <h4><i class="fa-solid fa-money-bill-wave"></i> Make a Payment</h4>
+                                <form id="payment-form" class="form-layout">
+                                    <label>Select Method:</label>
+                                    <div class="payment-methods">
+                                        <label><input type="radio" name="payment-method" value="GCash" checked> <i class="fa-solid fa-mobile-screen"></i> GCash</label>
+                                        <label><input type="radio" name="payment-method" value="PayPal"> <i class="fa-brands fa-paypal"></i> PayPal</label>
+                                        <label><input type="radio" name="payment-method" value="Card"> <i class="fa-solid fa-credit-card"></i> Credit Card</label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="payment-amount">Amount (PHP)</label>
+                                        <input type="number" id="payment-amount" placeholder="Enter amount">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Pay Now</button>
+                                    <hr>
+                                    <h4><i class="fa-solid fa-upload"></i> Upload Receipt</h4>
+                                    <div class="form-group">
+                                        <label for="receipt-ref">Reference Number</label>
+                                        <input type="text" id="receipt-ref" placeholder="e.g., 123456789">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="receipt-file">Upload Proof</label>
+                                        <input type="file" id="receipt-file" class="form-control">
+                                    </div>
+                                    <button id="upload-receipt-btn" type="button" class="btn btn-secondary">Submit Receipt</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tab-history" class="tab-content">
+                        <div class="card">
+                            <h4><i class="fa-solid fa-history"></i> Transaction Log</h4>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Reference No.</th>
+                                        <th>Description</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="payment-history-body">
+                                    </tbody>
+                            </table>
+                            <button id="print-history-btn" class="btn btn-secondary"><i class="fa-solid fa-print"></i> Print History</button>
+                        </div>
+                    </div>
+
+                    <div id="tab-assessment" class="tab-content">
+                        <div class="card">
+                            <h4><i class="fa-solid fa-calculator"></i> Tentative Assessment (1st Year, 1st Sem)</h4>
+                            <p>This is an estimated total before enrollment confirmation.</p>
+                            <table class="data-table">
+                                <thead>
+                                    <tr><th>Fee</th><th>Amount</th></tr>
+                                </thead>
+                                <tbody id="assessment-body">
+                                    </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="page-clearance" class="page-content">
+                    <div class="card">
+                        <h4><i class="fa-solid fa-list-check"></i> Clearance Status</h4>
+                        <p>Your clearance is updated automatically by each department. You do not need to take any action.</p>
+
+                        <div class="clearance-progress">
+                            <p>Overall Progress</p>
+                            <progress id="clearance-progress-bar" value="0" max="100"></progress>
+                            <span id="clearance-progress-text">0/0 Cleared</span>
+                        </div>
+
+                        <ul class="requirements-list" id="clearance-list">
+                            </ul>
+
+                        <div id="clearance-permit-message" class="message-box info hidden"></div>
+
+                        <button id="print-clearance-btn" class="btn btn-primary"><i class="fa-solid fa-print"></i> Print Clearance Summary</button>
+                        <button id="simulate-clearance-btn" class="btn btn-secondary" title="For Demo Only">Clear All (Demo)</button>
+                    </div>
+                </section>
+
+                <section id="page-registration" class="page-content">
+                    <div id="registration-container">
+                        </div>
+                </section>
+
+                <section id="page-profile" class="page-content">
+                    <div class="card">
+                        <h4><i class="fa-solid fa-user-pen"></i> Edit Profile</h4>
+                        <form id="profile-form" class="form-layout two-col">
+                            <div class="form-group profile-photo-group">
+                                <label>Profile Photo</label>
+                                <img src="https://i.pravatar.cc/150" id="profile-photo-preview" alt="Profile Preview">
+                                <input type="file" id="profile-photo-upload" accept="image/*">
+                                <label for="profile-photo-upload" class="btn btn-secondary">Upload New Photo</label>
+                                <button type="button" id="generate-avatar-btn" class="btn btn-secondary">Generate Avatar</button>
+                            </div>
+                            <div class="profile-fields">
+                                <div class="grid-container two-col">
+                                    <div class="form-group">
+                                        <label for="profile-name">Full Name</label>
+                                        <input type="text" id="profile-name" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="profile-id">Student ID</label>
+                                        <input type="text" id="profile-id" disabled>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="profile-course">Course</label>
+                                        <input type="text" id="profile-course" disabled>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="profile-year">Year Level</label>
+                                        <select id="profile-year">
+                                            <option value="1st Year">1st Year</option>
+                                            <option value="2nd Year">2nd Year</option>
+                                            <option value="3rd Year">3rd Year</option>
+                                            <option value="4th Year">4th Year</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="profile-term">Academic Term</label>
+                                        <input type="text" id="profile-term" disabled>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="profile-status">Academic Status</label>
+                                        <input type="text" id="profile-status" disabled>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="profile-email">Email Address</label>
+                                    <input type="email" id="profile-email" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="profile-contact">Contact Number</label>
+                                    <input type="tel" id="profile-contact" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
+                <section id="page-documents" class="page-content">
+                    <div class="grid-container two-col">
+                        <div class="card">
+                            <h4><i class="fa-solid fa-file-import"></i> Request a Document</h4>
+                            <form id="doc-request-form" class="form-layout">
+                                <div class="form-group">
+                                    <label for="doc-type">Type of Document</label>
+                                    <select id="doc-type" required>
+                                        <option value="">-- Select Document --</option>
+                                        <option value="TOR" data-price="150">Transcript of Records (TOR)</option>
+                                        <option value="Enrollment" data-price="50">Certificate of Enrollment</option>
+                                        <option value="GoodMoral" data-price="50">Certificate of Good Moral</option>
+                                        <option value="Diploma" data-price="200">Diploma Copy</option>
+                                        <option value="GradeSlip" data-price="30">Grade Slip</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="doc-copies">Number of Copies</label>
+                                    <input type="number" id="doc-copies" value="1" min="1" max="10" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="doc-purpose">Purpose of Request</label>
+                                    <input type="text" id="doc-purpose" placeholder="e.g., Scholarship Application" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="doc-pickup-date">Preferred Pickup Date</label>
+                                    <input type="date" id="doc-pickup-date" required>
+                                </div>
+                                <hr>
+                                <div id="doc-payment-summary">
+                                    <p>Document Fee: <span id="doc-fee">₱0.00</span></p>
+                                    <p>Processing Fee: <span id="doc-processing-fee">₱25.00</span></p>
+                                    <h4>Total: <span id="doc-total-fee">₱25.00</span></h4>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Submit & Proceed to Pay</button>
+                            </form>
+                        </div>
+                        <div class="card">
+                            <h4><i class="fa-solid fa-receipt"></i> Payment</h4>
+                            <p>Select a method to pay for your request.</p>
+                            <div class="payment-methods">
+                                <label><input type="radio" name="doc-payment-method" value="GCash" checked> GCash</label>
+                                <label><input type="radio" name="doc-payment-method" value="PayPal"> PayPal</label>
+                                <label><input type="radio" name="doc-payment-method" value="Card"> Credit Card</label>
+                            </div>
+                            <label for="doc-receipt-upload">Upload Receipt (Optional)</label>
+                            <input type="file" id="doc-receipt-upload" class="form-control">
+                            <button id="doc-confirm-payment-btn" class="btn btn-primary" disabled>Confirm Payment</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h4><i class="fa-solid fa-boxes-packing"></i> Request Tracking</h4>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Ref. No.</th>
+                                    <th>Document</th>
+                                    <th>Date</th>
+                                    <th>Payment</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="doc-tracking-body">
+                                </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="page-announcements" class="page-content">
+                    <div class="announcement-filters">
+                        <button class="btn btn-secondary active" data-filter="all">All</button>
+                        <button class="btn btn-secondary" data-filter="Academic">Academic</button>
+                        <button class="btn btn-secondary" data-filter="Finance">Finance</button>
+                        <button class="btn btn-secondary" data-filter="General">General</button>
+                    </div>
+                    <div id="announcement-list" class="grid-container">
+                        </div>
+                </section>
+
+                <section id="page-library" class="page-content">
+                    <div class="card">
+                        <h4><i class="fa-solid fa-book-bookmark"></i> Borrowed Books</h4>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Book Title</th>
+                                    <th>Date Borrowed</th>
+                                    <th>Due Date</th>
+                                    <th>Fines</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="library-books-body">
+                                </tbody>
+                        </table>
+                        <div class="total-fines">
+                            <h4>Total Fines: <span id="library-total-fines">₱0.00</span></h4>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="page-about" class="page-content">
+                    <div class="card">
+                        <h4><i class="fa-solid fa-circle-info"></i> About This Project</h4>
+                        <p>This is a <strong>front-end-only Student Portal demonstration</strong> built for educational purposes.</p>
+                        <p>All data is simulated and temporarily stored in your browser's <strong>LocalStorage</strong>. No information is sent to a server, and no real database is used. Refreshing or clearing your cache may reset the data to its default state.</p>
+                        <strong>Technologies Used:</strong>
+                        <ul>
+                            <li>HTML5</li>
+                            <li>CSS3 (Flexbox, Grid, Variables)</li>
+                            <li>JavaScript (ES6+, Modular)</li>
+                            <li>Chart.js (for data visualization)</li>
+                            <li>jsPDF & html2canvas (for PDF generation)</li>
+                        </ul>
+                        <p>This project showcases a modern, responsive UI/UX, complex workflows (like exam permit generation), and dynamic data handling entirely on the client-side.</p>
+                    </div>
+                </section>
+                <section id="page-calendar" class="page-content">
+    <div class="card">
+        <h4><i class="fa-solid fa-calendar-alt"></i> Academic Calendar - October 2025</h4>
+        <p>Showing exam schedule. Other events can be added here.</p>
+        <div id="calendar-controls">
+            </div>
+        <div id="calendar-grid">
+            <div class="calendar-header">Sun</div>
+            <div class="calendar-header">Mon</div>
+            <div class="calendar-header">Tue</div>
+            <div class="calendar-header">Wed</div>
+            <div class="calendar-header">Thu</div>
+            <div class="calendar-header">Fri</div>
+            <div class="calendar-header">Sat</div>
+            </div>
+         <div id="calendar-legend">
+             <span class="legend-item exam-day">Exam Day</span>
+             </div>
+    </div>
+</section>
+            </main>
+        </div>
+    </div>
+
+    <div id="chatbot-container" class="hidden">
+        <div id="chatbot-header">
+            <span><i class="fa-solid fa-robot"></i> Student Assistant</span>
+            <button id="chatbot-toggle-btn"><i class="fa-solid fa-chevron-down"></i></button>
+        </div>
+        <div id="chatbot-body">
+            <div id="chatbot-messages">
+                <div class="chat-message bot">
+    Hi! How can I help you today? Ask me about enrollment, exam permits, or payments.
+    <span class="chat-timestamp"></span> </div>
+            </div>
+            <div id="chatbot-input">
+                <input type="text" id="chatbot-query" placeholder="Type your question...">
+                <button id="chatbot-send-btn"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
