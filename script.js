@@ -222,13 +222,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // Default data structure
         defaultData: {
             profile: {
-                name: "Juan Dela Cruz",
+                name: "Winter Yu",
                 id: "2025-00001",
                 course: "BS in Information Technology",
                 year: "2nd Year",
                 term: "1st Semester, SY 2025-2026",
                 status: "Regular",
-                email: "juan.delacruz@school.edu",
+                email: "winter.yu@school.edu",
                 contact: "0917-123-4567",
                 photo: "https://i.pravatar.cc/150",
                 birthday: "2004-10-25", // For birthday greeting
@@ -2098,5 +2098,6 @@ const Notifications = {
     // ==================================================================
     // App.init(); // OLD way
     App.checkAuthentication(); // NEW: Start authentication flow
+
 
 });
